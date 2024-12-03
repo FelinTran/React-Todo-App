@@ -3,7 +3,7 @@ import { createContext, useState, useContext, ReactNode } from "react";
 
 interface AuthContextType {
     isAuthenticated: boolean;
-    login: (accessToken: any, tokenType: any) => void;
+    login: () => void;
     logout: () => void;
 }
 
