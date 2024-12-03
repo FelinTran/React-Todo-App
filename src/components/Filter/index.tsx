@@ -5,9 +5,10 @@ type FilterProps = {
   options: string[];
   selectedOption: string;
   onFilterChange: (option: string) => void;
+  'aria-label'?: string;
 };
 
-const Filter: React.FC<FilterProps> = ({ options, selectedOption, onFilterChange }) => {
+const Filter: React.FC<FilterProps> = ({ options, selectedOption, onFilterChange, 'aria-label': ariaLabel }) => {
   return (
     <>
       {/* <div className="relative inline-block">

@@ -1,4 +1,3 @@
-S// Login.tsx
 import { useForm } from "react-hook-form";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
@@ -34,7 +33,7 @@ const Login = () => {
                 // Or save to sessionStorage if you want it cleared when browser closes
                 // sessionStorage.setItem('accessToken', accessToken);
                 
-                login(); // Update the auth state
+                login(accessToken, data.username); // Update the auth state
                 navigate("/"); // Navigate to the main app
             }
         } catch (error) {

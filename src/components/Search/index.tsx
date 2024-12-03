@@ -3,14 +3,16 @@ import React from "react";
 type SearchBarProps = {
   searchQuery: string;
   onSearch: (query: string) => void;
+  'aria-label'?: string;
 };
 
-const SearchBar: React.FC<SearchBarProps> = ({ searchQuery, onSearch }) => {
+const SearchBar: React.FC<SearchBarProps> = ({ searchQuery, onSearch, 'aria-label': ariaLabel }) => {
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const query = e.target.value;
     console.log("Search Query:", query);
     onSearch(query);
   };
+
   return (
     <div className="relative w-full mb-4">
       <input

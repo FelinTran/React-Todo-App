@@ -12,6 +12,17 @@ import { useAuth } from "../../context/AuthContext.tsx"
 import axios from "axios";
 import { Columns, Task as TaskType, Column as ColumnType } from "../../types";
 
+// Define a type for the task
+type TaskResponse = {
+  id: string;
+  title: string;
+  priority: string;
+  description: string;
+  duedate: string;
+  completed: boolean;
+  status: string;
+};
+
 const Home = () => {
   const { state, dispatch } = useTaskContext();
   const [modalOpen, setModalOpen] = useState(false);
@@ -38,14 +49,17 @@ const Home = () => {
         headers: { Authorization: `Bearer ${token}` }
       });
 
+      // Assert the type of response.data
+      const tasks = response.data as TaskResponse[];
+
       const columnData = {
-        backlog: { name: "Backlog", items: response.data.filter((task: any) => task.status === "BACKLOG") },
-        todo: { name: "To-Do", items: response.data.filter((task: any) => task.status === "TO-DO") },
-        doing: { name: "Doing", items: response.data.filter((task: any) => task.status === "DOING") },
-        done: { name: "Done", items: response.data.filter((task: any) => task.status === "DONE") },
-        archived: { name: "Archived", items: response.data.filter((task: any) => task.status === "ARCHIVED") }
+        backlog: { name: "Backlog", items: tasks.filter((task) => task.status === "BACKLOG") },
+        todo: { name: "To-Do", items: tasks.filter((task) => task.status === "TO-DO") },
+        doing: { name: "Doing", items: tasks.filter((task) => task.status === "DOING") },
+        done: { name: "Done", items: tasks.filter((task) => task.status === "DONE") },
+        archived: { name: "Archived", items: tasks.filter((task) => task.status === "ARCHIVED") }
       };
-      setColumns(columnData);
+      setColumns(columnData as Columns); 
     };
     fetchTasks();
   }, []);
@@ -119,7 +133,11 @@ const Home = () => {
       <>
         <div className="flex items-center justify-between">
           <div className="w-full mt-4 px-2 pb-8">
-            <SearchBar searchQuery={searchQuery} onSearch={setSearchQuery}/>
+            <SearchBar 
+              searchQuery={searchQuery} 
+              onSearch={setSearchQuery}
+              aria-label="Search Tasks"
+            />
           </div>
           <div className="mt-0 px-2 pb-10">
             <Filter

@@ -1,8 +1,8 @@
-export interface Tag {
-	title: string;
-	bg: string;
-	text: string;
-}
+// export interface Tag {
+// 	title: string;
+// 	bg: string;
+// 	text: string;
+// }
 
 export interface Task {
 	id: string;
@@ -11,6 +11,8 @@ export interface Task {
 	description: string;
 	duedate: string;
 	completed: boolean;
+	status: string;
+	// tags: Tag[];
 }
 
 export interface Column {

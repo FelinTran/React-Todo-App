@@ -13,7 +13,8 @@ interface Task {
   priority: string;
   duedate: string;
   completed: boolean;
-  tags: Tag[];
+  status: string;
+  // tags: Tag[];
 }
 
 interface TaskState {

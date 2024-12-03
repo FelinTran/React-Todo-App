@@ -9,7 +9,7 @@ interface TaskProps {
 }
 
 const Task = ({ task, provided }: TaskProps) => {
-	const { title, description, priority, duedate } = task;
+	const { title, description, priority } = task;
 
 	return (
     <div
