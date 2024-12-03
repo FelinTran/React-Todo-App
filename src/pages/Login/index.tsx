@@ -10,6 +10,10 @@ interface LoginFormInputs {
     password: string;
 }
 
+interface LoginResponse {
+    accessToken: string;
+}
+
 const Login = () => {
     const { login } = useAuth();
     const { setIsLoading } = useLoading();
@@ -20,7 +24,7 @@ const Login = () => {
     const onSubmit = async (data: LoginFormInputs) => {
         try {
             setIsLoading(true); // Start loading
-            const response = await axios.post("http://localhost:8080/api/auth/login", data); // Replace with your API endpoint
+            const response = await axios.post<LoginResponse>("http://localhost:8080/api/auth/login", data); // Replace with your API endpoint
             console.log(response.data);
             const { accessToken } = response.data;
 
