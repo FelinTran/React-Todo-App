@@ -31,6 +31,7 @@ const Filter: React.FC<FilterProps> = ({ options, selectedOption, onFilterChange
         <select
           value={selectedOption}
           onChange={(e) => onFilterChange(e.target.value)}
+          aria-label={ariaLabel}
           className="py-2.5 px-5 me-2 mb-2 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 light:focus:ring-gray-700 light:bg-gray-800 light:text-gray-400 light:border-gray-600 light:hover:text-white light:hover:bg-gray-700"
         >
           <option value="" className=''>Filter</option>
