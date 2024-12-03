@@ -1,43 +1,52 @@
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
-import { useEffect, useState } from "react";
-import { Board } from "../../data/board";
-import { Columns } from "../../types";
+import { useEffect, useState, useCallback } from "react";
+import { useTaskContext } from "../../context/TaskContext";
 import { onDragEnd } from "../../utils/onDragEnd";
 import { AddOutline } from "react-ionicons";
 import AddModal from "../../components/Modals/AddModal";
 import Task from "../../components/Task";
 import SearchBar from "../../components/Search";
 import Filter from "../../components/Filter";
+import { Columns, Task as TaskType, Column as ColumnType } from "../../types";
 
 const Home = () => {
+  const { state, dispatch } = useTaskContext();
   const [modalOpen, setModalOpen] = useState(false);
-  const [selectedColumn, setSelectedColumn] = useState("");
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedFilter, setSelectedFilter] = useState("");
+  const [selectedColumn, setSelectedColumn] = useState<string>("");
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [selectedFilter, setSelectedFilter] = useState<string>("");
   const filterOptions = ["High", "Medium", "Low"];
 
-  // Save task to local storage
   const [columns, setColumns] = useState<Columns>(() => {
-    const savedColumns = localStorage.getItem("columns");
-    return savedColumns ? JSON.parse(savedColumns) : Board; // Load from localStorage or fallback to default
+    try {
+      const savedColumns = localStorage.getItem("columns");
+      return savedColumns ? JSON.parse(savedColumns) : state.tasks;
+    } catch (error) {
+      console.error("Failed to load columns from localStorage", error);
+      return state.tasks;
+    }
   });
 
   useEffect(() => {
-    // Save columns state to localStorage whenever it changes
-    localStorage.setItem("columns", JSON.stringify(columns));
+    try {
+      localStorage.setItem("columns", JSON.stringify(columns));
+    } catch (error) {
+      console.error("Failed to save columns to localStorage", error);
+    }
   }, [columns]);
 
-  const openModal = (columnId: any) => {
+  const openModal = useCallback((columnId: string) => {
     setSelectedColumn(columnId);
     setModalOpen(true);
-  };
+  }, []);
 
-  const closeModal = () => {
+  const closeModal = useCallback(() => {
     setModalOpen(false);
-  };
+  }, []);
 
-  const handleAddTask = (taskData: any) => {
-    setColumns((prevColumns) => {
+  const handleAddTask = useCallback((taskData: TaskType) => {
+    dispatch({ type: "ADD_TASK", task: taskData });
+    setColumns((prevColumns: Columns) => {
       const newColumns = Object.fromEntries(
         Object.entries(prevColumns).map(([columnId, column]) => {
           if (columnId === selectedColumn) {
@@ -54,14 +63,13 @@ const Home = () => {
       );
       return newColumns;
     });
-  };
+  }, [selectedColumn, dispatch]);
 
-  const handleFilterChange = (filter: string) => {
+  const handleFilterChange = useCallback((filter: string) => {
     setSelectedFilter(filter);
-  };
+  }, []);
 
-  // Search & Filter
-  const filteredColumns = Object.fromEntries(
+  const filteredColumns: Columns = Object.fromEntries(
     Object.entries(columns).map(([columnId, column]) => {
       const filteredItems = column.items.filter((task) => {
         const matchesSearchQuery = task.title
@@ -75,7 +83,7 @@ const Home = () => {
       return [
         columnId,
         {
-          ...column,
+          ...column as ColumnType,
           items: filteredItems,
         },
       ];
