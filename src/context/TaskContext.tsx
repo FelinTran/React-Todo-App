@@ -1,4 +1,4 @@
-import React, { createContext, useReducer, useContext, Dispatch } from "react";
+import { ReactNode, createContext, useReducer, useContext, Dispatch } from "react";
 
 interface Tag {
   title: string;
@@ -38,7 +38,7 @@ const TaskContext = createContext<
   { state: TaskState; dispatch: Dispatch<TaskAction> } | undefined
 >(undefined);
 
-const taskReducer = (state: TaskState, action: TaskAction): TaskState => {
+const TaskReducer = (state: TaskState, action: TaskAction): TaskState => {
   switch (action.type) {
     case "ADD_TASK":
       return { ...state, tasks: [...state.tasks, action.task] };
@@ -60,15 +60,15 @@ const taskReducer = (state: TaskState, action: TaskAction): TaskState => {
   }
 };
 
-export const TaskProvider: React.FC = ({ children }) => {
-  const [state, dispatch] = useReducer(taskReducer, initialState);
+export function TaskProvider({ children }: { children: ReactNode }) {
+  const [state, dispatch] = useReducer(TaskReducer, initialState);
 
   return (
     <TaskContext.Provider value={{ state, dispatch }}>
       {children}
     </TaskContext.Provider>
   );
-};
+}
 
 export const useTaskContext = () => {
   const context = useContext(TaskContext);
