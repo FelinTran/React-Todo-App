@@ -3,16 +3,17 @@ import routes from "./routes";
 import {AuthProvider} from "./context/AuthContext.tsx";
 import {LoadingProvider} from "./context/LoadingContext.tsx";
 import LoadingIndicator from "./components/Loading";
+import { TaskProvider } from "./components/ToDoReducer/TaskContext";
 
 function App() {
 	const element = useRoutes(routes);
 	return (
 		<LoadingProvider>
 			<AuthProvider>
-				<>
+				<TaskProvider>
 					<LoadingIndicator />
 					{element}
-				</>
+				</TaskProvider>
 			</AuthProvider>
 		</LoadingProvider>
 	);

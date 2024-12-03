@@ -8,6 +8,7 @@ import AddModal from "../../components/Modals/AddModal";
 import Task from "../../components/Task";
 import SearchBar from "../../components/Search";
 import Filter from "../../components/Filter";
+import axios from "axios";
 
 const Home = () => {
   const [modalOpen, setModalOpen] = useState(false);
@@ -16,11 +17,34 @@ const Home = () => {
   const [selectedFilter, setSelectedFilter] = useState("");
   const filterOptions = ["High", "Medium", "Low"];
 
-  // Save task to local storage
-  const [columns, setColumns] = useState<Columns>(() => {
-    const savedColumns = localStorage.getItem("columns");
-    return savedColumns ? JSON.parse(savedColumns) : Board; // Load from localStorage or fallback to default
+  // Initialize with empty columns
+  const [columns, setColumns] = useState<Columns>({
+    backlog: { name: "Backlog", items: [] },
+    todo: { name: "To-Do", items: [] },
+    doing: { name: "Doing", items: [] },
+    done: { name: "Done", items: [] },
+    archived: { name: "Archived", items: [] }
   });
+
+  // Fetch data on component mount
+  useEffect(() => {
+    const fetchTasks = async () => {
+      const token = localStorage.getItem('accessToken');
+      const response = await axios.get("http://localhost:8080/api/task/", {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      const columnData = {
+        backlog: { name: "Backlog", items: response.data.filter((task: any) => task.status === "BACKLOG") },
+        todo: { name: "To-Do", items: response.data.filter((task: any) => task.status === "TO-DO") },
+        doing: { name: "Doing", items: response.data.filter((task: any) => task.status === "DOING") },
+        done: { name: "Done", items: response.data.filter((task: any) => task.status === "DONE") },
+        archived: { name: "Archived", items: response.data.filter((task: any) => task.status === "ARCHIVED") }
+      };
+      setColumns(columnData);
+    };
+    fetchTasks();
+  }, []);
 
   useEffect(() => {
     // Save columns state to localStorage whenever it changes

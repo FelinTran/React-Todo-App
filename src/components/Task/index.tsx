@@ -21,7 +21,7 @@ const Task = ({ task, provided }: TaskProps) => {
       {image && alt && (
         <img src={image} alt={alt} className="w-full h-[170px] rounded-lg" />
       )}
-      <div className="flex items-center gap-2">
+      {/* <div className="flex items-center gap-2">
         {tags.map((tag) => (
           <span
             key={tag.title}
@@ -31,7 +31,7 @@ const Task = ({ task, provided }: TaskProps) => {
             {tag.title}
           </span>
         ))}
-      </div>
+      </div> */}
       <div className="w-full flex items-start flex-col gap-0">
         <span className="text-[16px] font-semibold text-gray-900">{title}</span>
         <span className="text-[14px] font-medium text-gray-500">

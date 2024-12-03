@@ -15,7 +15,6 @@ const Login = () => {
     const { setIsLoading } = useLoading();
     const navigate = useNavigate();
 
-
     const { register, handleSubmit, formState: { errors } } = useForm<LoginFormInputs>();
 
     const onSubmit = async (data: LoginFormInputs) => {
@@ -26,6 +25,11 @@ const Login = () => {
             const { accessToken } = response.data;
 
             if (accessToken) {
+                // Save token to localStorage
+                localStorage.setItem('accessToken', accessToken);
+                // Or save to sessionStorage if you want it cleared when browser closes
+                // sessionStorage.setItem('accessToken', accessToken);
+                
                 login(); // Update the auth state
                 navigate("/"); // Navigate to the main app
             }
