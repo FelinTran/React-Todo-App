@@ -8,13 +8,15 @@ import AddModal from "../../components/Modals/AddModal";
 import Task from "../../components/Task";
 import SearchBar from "../../components/Search";
 import Filter from "../../components/Filter";
-
+import {Button} from "react-bootstrap";
+import { useAuth } from "../../context/AuthContext.tsx"
 const Home = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedColumn, setSelectedColumn] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedFilter, setSelectedFilter] = useState("");
   const filterOptions = ["High", "Medium", "Low"];
+  const { logout } = useAuth();
 
   // Save task to local storage
   const [columns, setColumns] = useState<Columns>(() => {
@@ -82,71 +84,77 @@ const Home = () => {
     })
   );
 
+  const handleLogout = () => { logout(); }
+
   return (
-    <>
-      <div className="flex items-center justify-between">
-        <div className="w-full mt-4 px-2 pb-8">
-          <SearchBar searchQuery={searchQuery} onSearch={setSearchQuery} />
+      <>
+        <div className="flex items-center justify-between">
+          <div className="w-full mt-4 px-2 pb-8">
+            <SearchBar searchQuery={searchQuery} onSearch={setSearchQuery}/>
+          </div>
+          <div className="mt-0 px-2 pb-10">
+            <Filter
+                options={filterOptions}
+                selectedOption={selectedFilter}
+                onFilterChange={handleFilterChange}
+            />
+          </div>
+          <div className="mt-0 px-5 pb-4 bg-white rounded-md ">
+            <Button onClick={handleLogout} className="w-full h-full flex items-center justify-center text-center ">Logout</Button>
+          </div>
         </div>
-        <div className="mt-0 px-2 pb-10">
-          <Filter
-            options={filterOptions}
-            selectedOption={selectedFilter}
-            onFilterChange={handleFilterChange}
-          />
-        </div>
-      </div>
 
-      <DragDropContext
-        onDragEnd={(result: any) => onDragEnd(result, columns, setColumns)}
-      >
-        <div className="w-full flex items-start justify-between px-2 pb-8 md:gap-0 gap-10 mt-0">
-          {Object.entries(filteredColumns).map(([columnId, column]: any) => (
-            <div className="w-full flex flex-col gap-0" key={columnId}>
-              <Droppable droppableId={columnId} key={columnId}>
-                {(provided: any) => (
+        <DragDropContext
+            onDragEnd={(result: any) => onDragEnd(result, columns, setColumns)}
+        >
+          <div className="w-full flex items-start justify-between px-2 pb-8 md:gap-0 gap-10 mt-0">
+            {Object.entries(filteredColumns).map(([columnId, column]: any) => (
+                <div className="w-full flex flex-col gap-0" key={columnId}>
+                  <Droppable droppableId={columnId} key={columnId}>
+                    {(provided: any) => (
+                        <div
+                            ref={provided.innerRef}
+                            {...provided.droppableProps}
+                            className="flex flex-col md:w-[90%] w-[250px] gap-3 py-5"
+                        >
+                          <div
+                              className="bg-white text-[18px] font-semibold rounded-md text-gray-800 py-2 px-3 border-radius border-x-black">
+                            {column.name}
+                          </div>
+                          {column.items.map((task: any, index: any) => (
+                              <Draggable
+                                  key={task.id.toString()}
+                                  draggableId={task.id.toString()}
+                                  index={index}
+                              >
+                                {(provided: any) => (
+                                    <Task provided={provided} task={task}/>
+                                )}
+                              </Draggable>
+                          ))}
+                          {provided.placeholder}
+                        </div>
+                    )}
+                  </Droppable>
                   <div
-                    ref={provided.innerRef}
-                    {...provided.droppableProps}
-                    className="flex flex-col md:w-[90%] w-[250px] gap-3 py-5"
+                      onClick={() => openModal(columnId)}
+                      className="flex cursor-pointer items-center justify-center gap-1 py-[10px] md:w-[90%] w-full opacity-100 backdrop-blur bg-white bg-opacity-25 border rounded-lg shadow-sm text-white font-bold text-[16px]"
                   >
-                    <div className="bg-white text-[18px] font-semibold rounded-md text-gray-800 py-2 px-3 border-radius border-x-black">
-                      {column.name}
-                    </div>
-                    {column.items.map((task: any, index: any) => (
-                      <Draggable
-                        key={task.id.toString()}
-                        draggableId={task.id.toString()}
-                        index={index}
-                      >
-                        {(provided: any) => (
-                          <Task provided={provided} task={task} />
-                        )}
-                      </Draggable>
-                    ))}
-                    {provided.placeholder}
+                    <AddOutline color={"white"}/>
+                    Add Task
                   </div>
-                )}
-              </Droppable>
-              <div
-                onClick={() => openModal(columnId)}
-                className="flex cursor-pointer items-center justify-center gap-1 py-[10px] md:w-[90%] w-full opacity-100 backdrop-blur bg-white bg-opacity-25 border rounded-lg shadow-sm text-white font-bold text-[16px]"
-              >
-                <AddOutline color={"white"} />
-                Add Task
-              </div>
-            </div>
-          ))}
-        </div>
-      </DragDropContext>
+                </div>
+            ))}
+          </div>
+        </DragDropContext>
 
-      <AddModal
-        isOpen={modalOpen}
-        onClose={closeModal}
-        setOpen={setModalOpen}
-        handleAddTask={handleAddTask}
-      />
-    </>
+        <AddModal
+            isOpen={modalOpen}
+            onClose={closeModal}
+            setOpen={setModalOpen}
+            handleAddTask={handleAddTask}
+        />
+      </>
   );
 };
 

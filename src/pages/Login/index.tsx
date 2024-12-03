@@ -22,11 +22,11 @@ const Login = () => {
         try {
             setIsLoading(true); // Start loading
             const response = await axios.post("http://localhost:8080/api/auth/login", data); // Replace with your API endpoint
-            console.log(response.data);
-            const { accessToken } = response.data;
+            const { accessToken, tokenType } = response.data;
+            console.log(accessToken, tokenType);
 
             if (accessToken) {
-                login(); // Update the auth state
+                login(accessToken, tokenType); // Update the auth state
                 navigate("/"); // Navigate to the main app
             }
         } catch (error) {
