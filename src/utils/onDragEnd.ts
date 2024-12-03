@@ -4,6 +4,8 @@ export const onDragEnd = (result: any, columns: any, setColumns: any) => {
 
 	const { source, destination } = result;
 
+	console.log(source, destination);
+
 	if (source.droppableId !== destination.droppableId) {
 		const sourceColumn = columns[source.droppableId];
 		const destColumn = columns[destination.droppableId];

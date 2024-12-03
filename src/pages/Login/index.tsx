@@ -1,4 +1,4 @@
-// Login.tsx
+S// Login.tsx
 import { useForm } from "react-hook-form";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
@@ -10,23 +10,31 @@ interface LoginFormInputs {
     password: string;
 }
 
+interface LoginResponse {
+    accessToken: string;
+}
+
 const Login = () => {
     const { login } = useAuth();
     const { setIsLoading } = useLoading();
     const navigate = useNavigate();
-
 
     const { register, handleSubmit, formState: { errors } } = useForm<LoginFormInputs>();
 
     const onSubmit = async (data: LoginFormInputs) => {
         try {
             setIsLoading(true); // Start loading
-            const response = await axios.post("http://localhost:8080/api/auth/login", data); // Replace with your API endpoint
-            const { accessToken, tokenType } = response.data;
-            console.log(accessToken, tokenType);
+            const response = await axios.post<LoginResponse>("http://localhost:8080/api/auth/login", data); // Replace with your API endpoint
+            console.log(response.data);
+            const { accessToken } = response.data;
 
             if (accessToken) {
-                login(accessToken, tokenType); // Update the auth state
+                // Save token to localStorage
+                localStorage.setItem('accessToken', accessToken);
+                // Or save to sessionStorage if you want it cleared when browser closes
+                // sessionStorage.setItem('accessToken', accessToken);
+                
+                login(); // Update the auth state
                 navigate("/"); // Navigate to the main app
             }
         } catch (error) {
