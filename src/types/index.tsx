@@ -1,19 +1,24 @@
-export type TaskT = {
+export interface Tag {
+	title: string;
+	bg: string;
+	text: string;
+}
+
+export interface Task {
 	id: string;
 	title: string;
-	description: string;
 	priority: string;
-	duedate: Date;
-	image?: string;
-	alt?: string;
-	tags: { title: string; bg: string; text: string }[];
-};
+	description: string;
+	duedate: string;
+	completed: boolean;
+	tags: Tag[];
+}
 
-type Column = {
+export interface Column {
 	name: string;
-	items: TaskT[];
-};
+	items: Task[];
+}
 
-export type Columns = {
+export interface Columns {
 	[key: string]: Column;
-};
+}
