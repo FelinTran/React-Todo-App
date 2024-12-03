@@ -1,11 +1,5 @@
 import { ReactNode, createContext, useReducer, useContext, Dispatch } from "react";
 
-interface Tag {
-  title: string;
-  bg: string;
-  text: string;
-}
-
 interface Task {
   id: string;
   title: string;
@@ -13,7 +7,6 @@ interface Task {
   priority: string;
   duedate: string;
   completed: boolean;
-  tags: Tag[];
 }
 
 interface TaskState {
@@ -26,7 +19,8 @@ type TaskAction =
   | { type: "ADD_TASK"; task: Task }
   | { type: "TOGGLE_COMPLETED"; taskId: string }
   | { type: "SET_SEARCH_QUERY"; query: string }
-  | { type: "SET_PRIORITY_FILTER"; filter: string };
+  | { type: "SET_PRIORITY_FILTER"; filter: string }
+  | { type: "UPDATE_TASK_STATUS"; taskId: string; status: string };
 
 const initialState: TaskState = {
   tasks: [],
@@ -55,6 +49,19 @@ const TaskReducer = (state: TaskState, action: TaskAction): TaskState => {
       return { ...state, searchQuery: action.query };
     case "SET_PRIORITY_FILTER":
       return { ...state, filterPriority: action.filter };
+    case "UPDATE_TASK_STATUS":
+      return {
+        ...state,
+        tasks: state.tasks.map((task) =>
+          task.id === action.taskId 
+            ? { 
+                ...task, 
+                status: action.status,
+                completed: action.status === "DONE"
+              } 
+            : task
+        ),
+      };
     default:
       return state;
   }

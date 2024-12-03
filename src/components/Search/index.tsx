@@ -1,21 +1,20 @@
 import React from "react";
+import { useTaskContext } from "../../context/TaskContext";
 
-type SearchBarProps = {
-  searchQuery: string;
-  onSearch: (query: string) => void;
-};
+const SearchBar: React.FC = () => {
+  const { state, dispatch } = useTaskContext();
 
-const SearchBar: React.FC<SearchBarProps> = ({ searchQuery, onSearch }) => {
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const query = e.target.value;
     console.log("Search Query:", query);
-    onSearch(query);
+    dispatch({ type: "SET_SEARCH_QUERY", query });
   };
+
   return (
     <div className="relative w-full mb-4">
       <input
         type="text"
-        value={searchQuery}
+        value={state.searchQuery}
         onChange={handleSearchChange}
         placeholder="Search tasks..."
         className="w-full p-3 pl-10 rounded-lg text-lg border border-gray-300 focus:outline-none focus:border-blue-500"

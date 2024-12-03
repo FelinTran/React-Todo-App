@@ -2,6 +2,7 @@
 import { TimeOutline } from "react-ionicons";
 import { Task as TaskType } from "../../types";
 import { formatDate } from "../../utils/formatDate";
+import { useTaskContext } from "../../context/TaskContext";
 
 interface TaskProps {
 	task: TaskType;
@@ -9,7 +10,8 @@ interface TaskProps {
 }
 
 const Task = ({ task, provided }: TaskProps) => {
-	const { title, description, priority, duedate } = task;
+	const { title, description, priority, duedate, completed } = task;
+	const { state } = useTaskContext();
 
 	return (
     <div
@@ -30,8 +32,8 @@ const Task = ({ task, provided }: TaskProps) => {
         ))}
       </div> */}
       <div className="w-full flex items-start flex-col gap-0">
-        <span className="text-[16px] font-semibold text-gray-900">{title}</span>
-        <span className="text-[14px] font-medium text-gray-500">
+        <span className={`text-[16px] font-semibold text-gray-900 ${completed ? 'line-through' : ''}`}>{title}</span>
+        <span className={`text-[14px] font-medium text-gray-500 ${completed ? 'line-through' : ''}`}>
           {description}
         </span>
       </div>
@@ -39,7 +41,7 @@ const Task = ({ task, provided }: TaskProps) => {
       <div className="w-full flex items-center justify-between">
         <div className="flex items-center gap-1">
           <TimeOutline color={"#666"} width="19px" height="19px" />
-          <span className="text-[13px] text-gray-700">
+          <span className={`text-[13px] text-gray-700 ${completed ? 'line-through' : ''}`}>
 		  	{formatDate(new Date(task.duedate))}
           </span>
         </div>

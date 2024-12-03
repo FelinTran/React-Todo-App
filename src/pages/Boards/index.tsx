@@ -14,8 +14,6 @@ const Home = () => {
   const { state, dispatch } = useTaskContext();
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedColumn, setSelectedColumn] = useState<string>("");
-  const [searchQuery, setSearchQuery] = useState<string>("");
-  const [selectedFilter, setSelectedFilter] = useState<string>("");
   const filterOptions = ["High", "Medium", "Low"];
 
   // Initialize with empty columns
@@ -86,18 +84,22 @@ const Home = () => {
   }, [selectedColumn, dispatch]);
 
   const handleFilterChange = useCallback((filter: string) => {
-    setSelectedFilter(filter);
-  }, []);
+    dispatch({ type: "SET_PRIORITY_FILTER", filter });
+  }, [dispatch]);
+
+  const handleSearch = useCallback((query: string) => {
+    dispatch({ type: "SET_SEARCH_QUERY", query });
+  }, [dispatch]);
 
   const filteredColumns: Columns = Object.fromEntries(
     Object.entries(columns).map(([columnId, column]) => {
       const filteredItems = column.items.filter((task) => {
         const matchesSearchQuery = task.title
           .toLowerCase()
-          .includes(searchQuery.toLowerCase());
+          .includes(state.searchQuery.toLowerCase());
         const matchesFilter =
-          selectedFilter === "" ||
-          task.priority === selectedFilter.toLowerCase();
+          state.filterPriority === "" ||
+          task.priority === state.filterPriority.toLowerCase();
         return matchesSearchQuery && matchesFilter;
       });
       return [
@@ -110,24 +112,49 @@ const Home = () => {
     })
   );
 
+  const handleDragEnd = useCallback(async (result: any) => {
+    onDragEnd(result, columns, setColumns);
+    
+    // Update task status in database
+    if (result.destination) {
+      const taskId = result.draggableId;
+      const newStatus = result.destination.droppableId.toUpperCase();
+      
+      try {
+        const token = localStorage.getItem('accessToken');
+        await axios.put(
+          `http://localhost:8080/api/task/${taskId}/status`,
+          { status: newStatus },
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        
+        // Update task status in context
+        dispatch({ type: "UPDATE_TASK_STATUS", taskId, status: newStatus });
+      } catch (error) {
+        console.error('Failed to update task status:', error);
+        // Optionally: Revert the UI change if the API call fails
+        // You might want to re-fetch the tasks or implement a rollback mechanism
+      }
+    }
+  }, [columns, dispatch]);
+
+
   return (
     <>
       <div className="flex items-center justify-between">
         <div className="w-full mt-4 px-2 pb-8">
-          <SearchBar searchQuery={searchQuery} onSearch={setSearchQuery} />
+          <SearchBar searchQuery={state.searchQuery} onSearch={handleSearch} />
         </div>
         <div className="mt-0 px-2 pb-10">
           <Filter
             options={filterOptions}
-            selectedOption={selectedFilter}
+            selectedOption={state.filterPriority}
             onFilterChange={handleFilterChange}
           />
         </div>
       </div>
 
-      <DragDropContext
-        onDragEnd={(result: any) => onDragEnd(result, columns, setColumns)}
-      >
+      <DragDropContext onDragEnd={handleDragEnd}>
         <div className="w-full flex items-start justify-between px-2 pb-8 md:gap-0 gap-10 mt-0">
           {Object.entries(filteredColumns).map(([columnId, column]: any) => (
             <div className="w-full flex flex-col gap-0" key={columnId}>
@@ -141,17 +168,21 @@ const Home = () => {
                     <div className="bg-white text-[18px] font-semibold rounded-md text-gray-800 py-2 px-3 border-radius border-x-black">
                       {column.name}
                     </div>
-                    {column.items.map((task: any, index: any) => (
-                      <Draggable
-                        key={task.id.toString()}
-                        draggableId={task.id.toString()}
-                        index={index}
-                      >
-                        {(provided: any) => (
-                          <Task provided={provided} task={task} />
-                        )}
-                      </Draggable>
-                    ))}
+                    {column.items.map((task: any, index: any) => {
+                      // Set completed based on column
+                      task.completed = columnId.toUpperCase() === 'DONE';
+                      return (
+                        <Draggable
+                          key={task.id.toString()}
+                          draggableId={task.id.toString()}
+                          index={index}
+                        >
+                          {(provided: any) => (
+                            <Task provided={provided} task={task} />
+                          )}
+                        </Draggable>
+                      );
+                    })}
                     {provided.placeholder}
                   </div>
                 )}
