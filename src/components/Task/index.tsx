@@ -1,15 +1,15 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { TimeOutline } from "react-ionicons";
-import { TaskT } from "../../types";
+import { Task as TaskType } from "../../types";
 import { formatDate } from "../../utils/formatDate";
 
 interface TaskProps {
-	task: TaskT;
+	task: TaskType;
 	provided: any;
 }
 
 const Task = ({ task, provided }: TaskProps) => {
-	const { title, description, priority, duedate, image, alt, tags } = task;
+	const { title, description, priority, duedate } = task;
 
 	return (
     <div
@@ -18,9 +18,6 @@ const Task = ({ task, provided }: TaskProps) => {
       {...provided.dragHandleProps}
       className="w-full cursor-grab bg-[#fff] flex flex-col justify-between gap-3 items-start shadow-sm rounded-xl px-3 py-4"
     >
-      {image && alt && (
-        <img src={image} alt={alt} className="w-full h-[170px] rounded-lg" />
-      )}
       {/* <div className="flex items-center gap-2">
         {tags.map((tag) => (
           <span

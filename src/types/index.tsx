@@ -11,7 +11,6 @@ export interface Task {
 	description: string;
 	duedate: string;
 	completed: boolean;
-	tags: Tag[];
 }
 
 export interface Column {
