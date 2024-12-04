@@ -49,9 +49,8 @@ const Home = () => {
       archived: { name: "Archived", items: response.data.filter((task: any) => task.status === "ARCHIVED") }
     };
     setColumns(columnData);
-
     setIsLoading(false);
-  };
+};
 
   useEffect(() => {
     fetchTasks();
@@ -87,6 +86,7 @@ const Home = () => {
           // Assuming the API returns the saved task
           console.log(response.data);
 
+          dispatch({ type: "ADD_TASK", task: taskData });
           fetchTasks();
 
         } catch (error) {
@@ -94,7 +94,7 @@ const Home = () => {
         } finally {
           setIsLoading(false);
         }
-      }
+  }
 
   // const handleAddTask = useCallback((taskData: TaskType) => {
   //   dispatch({ type: "ADD_TASK", task: taskData });
