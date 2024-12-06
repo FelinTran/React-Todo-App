@@ -9,6 +9,7 @@ import SearchBar from "../../components/Search";
 import Filter from "../../components/Filter";
 import axios from "axios";
 import { Columns, Task as TaskType, Column as ColumnType } from "../../types";
+import {useLoading} from "../../context/LoadingContext.tsx";
 
 interface TaskResponse {
   id: string;
@@ -25,6 +26,7 @@ const Home = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedColumn, setSelectedColumn] = useState<string>("");
   const filterOptions = ["High", "Medium", "Low"];
+  const { setIsLoading } = useLoading();
 
   // Initialize with empty columns
   const [columns, setColumns] = useState<Columns>({
@@ -38,6 +40,7 @@ const Home = () => {
   // Fetch data on component mount
   useEffect(() => {
     const fetchTasks = async () => {
+      setIsLoading(true);
       const token = localStorage.getItem('accessToken');
       const response = await axios.get<TaskResponse[]>("http://localhost:8080/api/task/", {
         headers: { Authorization: `Bearer ${token}` }
@@ -51,6 +54,7 @@ const Home = () => {
         archived: { name: "Archived", items: response.data.filter((task) => task.status === "ARCHIVED") }
       };
       setColumns(columnData);
+      setIsLoading(false);
     };
     fetchTasks();
   }, []);
@@ -72,8 +76,28 @@ const Home = () => {
     setModalOpen(false);
   }, []);
 
+  const AddTask = async (taskData: TaskType) => {
+    try {
+      setIsLoading(true);
+      // Add the selected column as the task's status
+      const taskWithStatus = { ...taskData, status: selectedColumn.toUpperCase() };
+      console.log(taskWithStatus);
+      // Send the task to the database via API
+      const token = localStorage.getItem('accessToken');
+      const response = await axios.post<TaskResponse>("http://localhost:8080/api/task/create", taskWithStatus, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      // Assuming the API returns the saved task
+      console.log(response.data);
+    } catch (error) {
+      console.error("Failed to add task:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  }
   const handleAddTask = useCallback((taskData: TaskType) => {
     dispatch({ type: "ADD_TASK", task: taskData });
+    AddTask(taskData);
     setColumns((prevColumns: Columns) => {
       const newColumns = Object.fromEntries(
         Object.entries(prevColumns).map(([columnId, column]) => {
@@ -131,6 +155,7 @@ const Home = () => {
       const newStatus = result.destination.droppableId.toUpperCase();
       
       try {
+        setIsLoading(true);
         const token = localStorage.getItem('accessToken');
         await axios.put(
           `http://localhost:8080/api/task/${taskId}/status`,
@@ -144,6 +169,8 @@ const Home = () => {
         console.error('Failed to update task status:', error);
         // Optionally: Revert the UI change if the API call fails
         // You might want to re-fetch the tasks or implement a rollback mechanism
+      } finally {
+          setIsLoading(false);
       }
     }
   }, [columns, dispatch]);
